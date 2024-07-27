@@ -9,13 +9,15 @@ const createTask = asyncWrapper(async (req, res) => {
   const task = await Task.create(req.body);
   res.status(201).json({ task });
 });
-const getTask = asyncWrapper(async (req, res) => {
+const getTask = asyncWrapper(async (req, res, next) => {
   // extract the id parameter from the req.params object
   // and assigns it to a new constant named taskId
   const { id: taskID } = req.params;
   const task = await Task.findOne({ _id: taskID });
   if (!task) {
-    return res.status(404).json({ msg: `No task with id: ${taskID}` });
+    const error = new Error(`No task with id: ${taskID}`);
+    error.status = 404;
+    return next(error);
   }
   res.status(200).json({ task });
 });
